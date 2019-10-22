@@ -38,3 +38,5 @@ settings.user.ps1
 ## Basic Company compiled assets
 /basic-company/client/_javascript/main.js
 /basic-company/client/css/main.css
+/examples/helix-basic-unicorn/docker/data
+/examples/helix-basic-unicorn/docker/website

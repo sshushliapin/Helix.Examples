@@ -1,0 +1,51 @@
+version: '2.4'
+
+services:
+
+  sql:
+    image: ${REGISTRY}sitecore-xm-sqldev:${SITECORE_VERSION}-windowsservercore-${WINDOWSSERVERCORE_VERSION}
+    volumes:
+      - .\docker\data\sql:C:\Data
+    mem_limit: 2GB
+    ports:
+      - "44110:1433"
+
+  solr:
+    image: ${REGISTRY}sitecore-xm-solr:${SITECORE_VERSION}-nanoserver-${NANOSERVER_VERSION}
+    volumes:
+      - .\docker\data\solr:C:\Data
+    mem_limit: 1GB
+    ports:
+      - "44111:8983"
+
+  cd:
+    image: ${REGISTRY}sitecore-xm-cd:${SITECORE_VERSION}-windowsservercore-${WINDOWSSERVERCORE_VERSION}
+    volumes:
+      - ${LICENSE_PATH}:C:\license
+      - .\docker\data\cd:C:\inetpub\wwwroot\App_Data\logs
+    ports:
+      - "44102:80"
+    links:
+      - sql
+      - solr
+
+  cm:
+    build:
+      context: .\docker
+      dockerfile: Dockerfile
+      args:
+        REGISTRY: ${REGISTRY}
+        WINDOWSSERVERCORE_VERSION: ${WINDOWSSERVERCORE_VERSION}
+        SITECORE_VERSION: ${SITECORE_VERSION}
+    entrypoint: cmd /c "start /B powershell Watch-Directory C:/src C:/inetpub/wwwroot & C:\\remote_debugger\\x64\\msvsmon.exe /noauth /anyuser /silent /nostatus /noclrwarn /nosecuritywarn /nofirewallwarn /nowowwarn /timeout:2147483646"
+    volumes:
+      - ${LICENSE_PATH}:C:\license
+      - .\docker\data\cm:C:\inetpub\wwwroot\App_Data\logs
+      - C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Common7\IDE\Remote Debugger:C:\remote_debugger:ro
+      - .\docker\website:C:\src
+      - .\src:c:\override\in\App_Config\Environment
+    ports:
+      - "44101:80"
+    links:
+      - sql
+      - solr
