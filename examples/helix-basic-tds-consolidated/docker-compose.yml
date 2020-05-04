@@ -50,6 +50,7 @@ services:
     entrypoint: powershell.exe -Command "& C:\\tools\\entrypoints\\iis\\Development.ps1"
     volumes:
       - .\data\cm:C:\inetpub\wwwroot\App_Data\logs
+      - .\website:C:\src
     ports:
       - "44001:80"
     environment:
